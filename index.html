@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片链接列表</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        input {
+            padding: 8px;
+            margin-right: 10px;
+            width: 60%;
+            /* 设置输入框宽度为页面宽度的60% */
+        }
+
+        button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            /* 设置按钮容器为居中，并添加底边距 */
+        }
+
+        table {
+            width: 100%;
+            /* 设置表格宽度为100% */
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        td:first-child,
+        td:nth-child(2) {
+            width: 50%;
+            /* 将第一列和第二列的宽度都设置为页面宽度的50% */
+        }
+
+        td:nth-child(2) {
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .link-container {
+            display: flex;
+            gap: 5px;
+            /* 设置链接之间的间隔 */
+        }
+
+        .link-container a {
+            display: block;
+            width: 100%;
+            overflow: hidden;
+            word-break: break-all;
+            /* 允许文本在需要时强制换行 */
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="button-container">
+        <input type="text" id="imageUrlInput" placeholder="输入图片链接">
+        <button onclick="addNewLink()">确认</button>
+        <button onclick="resetList()">重置</button>
+    </div>
+
+    <table id="imageTable">
+        <tr>
+
+        </tr>
+        <!-- 新的行将通过JavaScript添加 -->
+    </table>
+
+    <script>
+        // 读取本地存储中的链接数据
+        document.addEventListener("DOMContentLoaded", function () {
+            var storedLinks = localStorage.getItem("imageLinks");
+            if (storedLinks) {
+                document.getElementById("imageTable").innerHTML = storedLinks;
+                attachDeleteEventListeners();
+            }
+        });
+
+        // 添加新链接函数
+        function addNewLink() {
+            var imageUrl = document.getElementById("imageUrlInput").value.trim();
+
+            if (imageUrl === "") {
+                return; // 如果链接为空，不执行后续操作
+            }
+
+            var table = document.getElementById("imageTable");
+            var newRow = table.insertRow(1); // 在第一行后插入新行
+
+            var cell1 = newRow.insertCell(0);
+            var cell2 = newRow.insertCell(1);
+
+            var imgElement = document.createElement('img');
+            imgElement.src = imageUrl;
+            imgElement.alt = '图片';
+            cell1.appendChild(imgElement);
+
+            var linkContainer = document.createElement('div');
+            linkContainer.className = 'link-container';
+
+            var linkElement = document.createElement('a');
+            linkElement.href = imageUrl;
+            linkElement.target = '_blank';
+            linkElement.textContent = imageUrl;
+
+            linkContainer.appendChild(linkElement);
+            cell2.appendChild(linkContainer);
+
+            var deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-button';
+            deleteButton.innerHTML = '删除';
+            deleteButton.onclick = function () {
+                deleteRow(this);
+            };
+
+            linkContainer.appendChild(deleteButton);
+
+            // 清空输入框
+            document.getElementById("imageUrlInput").value = "";
+
+            // 保存链接数据到本地存储
+            localStorage.setItem("imageLinks", table.innerHTML);
+
+            // 添加删除按钮事件监听
+            attachDeleteEventListeners();
+        }
+
+        // 删除行函数
+        function deleteRow(button) {
+            var row = button.parentNode.parentNode.parentNode; // 修改选择行的方式
+            row.parentNode.removeChild(row);
+
+            // 更新本地存储
+            var table = document.getElementById("imageTable");
+            localStorage.setItem("imageLinks", table.innerHTML);
+        }
+
+        // 重置列表函数
+        function resetList() {
+            var table = document.getElementById("imageTable");
+            table.innerHTML = "";
+
+            // 清空本地存储
+            localStorage.removeItem("imageLinks");
+        }
+
+        // 添加删除按钮事件监听
+        function attachDeleteEventListeners() {
+            var deleteButtons = document.querySelectorAll('.delete-button');
+            deleteButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    deleteRow(this);
+                });
+            });
+        }
+
+        // 使用函数添加新链接
+        addNewLink("https://media.istockphoto.com/id/1164812576/zh/照片/在陽光明媚的街道上-穿著白色牆面背景和樹蔭的快樂中國女孩的肖像穿著黃色吊帶上衣和短裙.jpg?s=2048x2048&w=is&k=20&c=G0hMdTH0dAoEQhLub4Itk0VdtkIfVTQef1n9jUG2wbU=");
+        // 继续添加新链接...
+    </script>
+
+</body>
+
+</html>
